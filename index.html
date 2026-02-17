@@ -135,49 +135,49 @@
   // =========================
 
   // Cambia el título
-  const APP_TITLE = "Mini Desafío";
+  const APP_TITLE = "Viajero has llegado hasta aquí...";
 
   // Preguntas (puedes editarlas como quieras)
-  const QUIZ = [
+  const QUIZ = [  
     {
-      q: "Vale, empezamos suave… ¿qué prefieres?",
+      q: "¿En qué estación está el Hospital General Universitario Gregorio Marañón?",
       options: [
-        { t:"Pizza 🍕", ok:true },
-        { t:"Sushi 🍣", ok:false },
-        { t:"Tacos 🌮", ok:false },
-        { t:"Pasta 🍝", ok:false }
+        { t:"Gregorio Marañón (L7, L10)", ok:false },
+        { t:"Sainz de Baranda (L6, L9)", ok:false },
+        { t:"O'Donnell (L6)", ok:true },
+        { t:"Ibiza (L9)", ok:false }
       ],
-      hint: "Tranquil@, aquí no hay respuestas ‘malas’… (o sí 😈)"
+      hint: "Pista: no siempre la estación lleva exactamente el mismo nombre que el hospital 😉"
     },
     {
-      q: "Pregunta seria: ¿qué harías con 1 millón de euros?",
-      options: [
-        { t:"Viajar sin mirar el reloj ✈️", ok:true },
-        { t:"Invertirlo todo en crypto (sin saber) 😅", ok:false },
-        { t:"Comprarme 200 plantas 🌿", ok:false },
-        { t:"Dormir 3 meses seguidos 💤", ok:false }
-      ],
-      hint: "No juzgamos… solo registramos evidencias."
+    q: "Has estado en… Manila. ¿Qué estación del Metro te lo recordaría más?",
+    options: [
+      { t:"Islas Filipinas (L7)", ok:true },
+      { t:"Colombia (L8)", ok:false },
+      { t:"Oporto (L5)", ok:false },
+      { t:"Bilbao (L1, L4)", ok:false }
+    ],
+    hint: "Pista: No hablan español pero lo parece... y cuidado con lo que respondes"
     },
     {
-      q: "Te voy a leer la mente. Elige un color:",
+      q: "¿Qué linea de metro no has visitado hoy? Elige un color:",
       options: [
-        { t:"Morado 💜", ok:true },
-        { t:"Azul 💙", ok:false },
-        { t:"Verde 💚", ok:false },
-        { t:"Rojo ❤️", ok:false }
+        { t:"Morado", ok:true },
+        { t:"Azul", ok:false },
+        { t:"Naranja", ok:false },
+        { t:"Gris", ok:false }
       ],
-      hint: "Si eliges morado pasan cosas… 👀"
+      hint: "Solo si has estado atento lo sabrás"
     },
     {
-      q: "Última: ¿quieres ver el ‘modo hacker’?",
+      q: "Última: ¿quieres descubrir si has podido salvar el metro de madrid? Introduce la clave final:",
       options: [
-        { t:"Sí, obvio.", ok:true },
-        { t:"No, me da miedo.", ok:false },
-        { t:"Solo si hay premio.", ok:true },
-        { t:"Paso, me pillas ocupad@.", ok:false }
+        { t:"Felicidades", ok:true },
+        { t:"Metro", ok:false },
+        { t:"Cumple", ok:true },
+        { t:"Sorpresa", ok:false }
       ],
-      hint: "Prometo que no rompe nada. Solo impresiona."
+      hint: "Prometo que no rompe nada."
     },
   ];
 
