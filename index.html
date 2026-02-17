@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Mini Desafío</title>
+  <style>
+    :root{
+      --bg1:#0b1020; --bg2:#151a2f; --card:#0f1631cc;
+      --txt:#e8ecff; --muted:#aeb6dd; --acc:#a855f7; --acc2:#22c55e;
+      --danger:#ef4444;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; min-height:100vh; color:var(--txt);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      background: radial-gradient(1000px 700px at 20% 10%, #2b1b52 0%, transparent 55%),
+                  radial-gradient(900px 600px at 80% 30%, #113b5b 0%, transparent 55%),
+                  linear-gradient(180deg, var(--bg1), var(--bg2));
+      display:flex; align-items:center; justify-content:center; padding:18px;
+      overflow:hidden;
+    }
+    .wrap{width:min(860px, 100%); display:grid; gap:14px}
+    .top{
+      display:flex; gap:12px; align-items:center; justify-content:space-between;
+    }
+    .badge{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:10px 12px; border:1px solid #ffffff18;
+      border-radius:14px; background:#0b122a88;
+      backdrop-filter: blur(8px);
+    }
+    .dot{width:10px;height:10px;border-radius:999px;background:var(--acc); box-shadow:0 0 18px var(--acc);}
+    .progress{
+      flex:1; height:10px; border-radius:999px; background:#ffffff10;
+      overflow:hidden; border:1px solid #ffffff18;
+    }
+    .bar{height:100%; width:0%; background:linear-gradient(90deg, var(--acc), #60a5fa); transition:width .35s ease;}
+    .card{
+      border:1px solid #ffffff18; border-radius:22px;
+      background: var(--card);
+      box-shadow: 0 20px 60px #00000055;
+      backdrop-filter: blur(10px);
+      padding:20px;
+    }
+    h1{margin:0 0 10px; font-size: clamp(22px, 3.4vw, 34px); letter-spacing:.2px;}
+    p{margin:8px 0; color:var(--muted); line-height:1.55}
+    .row{display:flex; gap:10px; flex-wrap:wrap; margin-top:14px}
+    input{
+      flex:1; min-width:220px;
+      padding:12px 14px; border-radius:14px;
+      border:1px solid #ffffff22; background:#0b122a;
+      color:var(--txt); outline:none;
+    }
+    input:focus{border-color:#a855f799; box-shadow:0 0 0 4px #a855f722;}
+    button{
+      cursor:pointer;
+      padding:12px 14px; border-radius:14px;
+      border:1px solid #ffffff22; background:linear-gradient(180deg, #a855f7, #7c3aed);
+      color:white; font-weight:600;
+      transition: transform .08s ease, filter .2s ease;
+    }
+    button:hover{filter:brightness(1.06)}
+    button:active{transform: translateY(1px)}
+    .btnGhost{
+      background:#0b122a; color:var(--txt);
+    }
+    .q{
+      margin-top:14px;
+      display:grid; gap:10px;
+    }
+    .opt{
+      text-align:left;
+      padding:12px 14px;
+      border-radius:16px;
+      border:1px solid #ffffff18;
+      background:#0b122a88;
+      color:var(--txt);
+    }
+    .opt:hover{border-color:#a855f799; background:#0b122ab8}
+    .opt.good{border-color:#22c55e88; background:#052014cc}
+    .opt.bad{border-color:#ef444488; background:#2a060acc}
+    .hint{
+      font-size:14px;
+      color:#c7cff7;
+      border-left:3px solid #a855f7;
+      padding:10px 12px;
+      background:#0b122a66;
+      border-radius:12px;
+      margin-top:10px;
+    }
+    .mono{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 13px;
+      color:#d9ddff;
+      background:#050a18cc;
+      border:1px solid #ffffff12;
+      border-radius:14px;
+      padding:12px;
+      overflow:auto;
+    }
+    .shake{animation: shake .25s linear}
+    @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+    canvas#confetti{position:fixed; inset:0; pointer-events:none; z-index:10}
+    .footerNote{font-size:12px;color:#9aa4d7;margin-top:10px}
+    .pill{
+      display:inline-flex; gap:8px; align-items:center;
+      padding:8px 10px; border-radius:999px;
+      background:#0b122a88; border:1px solid #ffffff18;
+      color:#cdd4ff; font-size:12px;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="confetti"></canvas>
+
+  <div class="wrap">
+    <div class="top">
+      <div class="badge">
+        <span class="dot"></span>
+        <strong id="modeTitle">Mini Desafío</strong>
+        <span class="pill" id="stepPill">0/0</span>
+      </div>
+      <div class="progress" aria-label="Progreso">
+        <div class="bar" id="bar"></div>
+      </div>
+    </div>
+
+    <div class="card" id="app"></div>
+  </div>
+
+<script>
+  // =========================
+  // 1) PERSONALIZA AQUÍ 👇
+  // =========================
+
+  // Cambia el título
+  const APP_TITLE = "Mini Desafío";
+
+  // Preguntas (puedes editarlas como quieras)
+  const QUIZ = [
+    {
+      q: "Vale, empezamos suave… ¿qué prefieres?",
+      options: [
+        { t:"Pizza 🍕", ok:true },
+        { t:"Sushi 🍣", ok:false },
+        { t:"Tacos 🌮", ok:false },
+        { t:"Pasta 🍝", ok:false }
+      ],
+      hint: "Tranquil@, aquí no hay respuestas ‘malas’… (o sí 😈)"
+    },
+    {
+      q: "Pregunta seria: ¿qué harías con 1 millón de euros?",
+      options: [
+        { t:"Viajar sin mirar el reloj ✈️", ok:true },
+        { t:"Invertirlo todo en crypto (sin saber) 😅", ok:false },
+        { t:"Comprarme 200 plantas 🌿", ok:false },
+        { t:"Dormir 3 meses seguidos 💤", ok:false }
+      ],
+      hint: "No juzgamos… solo registramos evidencias."
+    },
+    {
+      q: "Te voy a leer la mente. Elige un color:",
+      options: [
+        { t:"Morado 💜", ok:true },
+        { t:"Azul 💙", ok:false },
+        { t:"Verde 💚", ok:false },
+        { t:"Rojo ❤️", ok:false }
+      ],
+      hint: "Si eliges morado pasan cosas… 👀"
+    },
+    {
+      q: "Última: ¿quieres ver el ‘modo hacker’?",
+      options: [
+        { t:"Sí, obvio.", ok:true },
+        { t:"No, me da miedo.", ok:false },
+        { t:"Solo si hay premio.", ok:true },
+        { t:"Paso, me pillas ocupad@.", ok:false }
+      ],
+      hint: "Prometo que no rompe nada. Solo impresiona."
+    },
+  ];
+
+  // Mensaje final (personalízalo)
+  const FINAL_TITLE = "✅ Diagnóstico completado";
+  const FINAL_MESSAGE = (name) => `Perfecto, ${name}. He confirmado científicamente que:
+  <br><br><strong>1)</strong> tienes buen gusto,
+  <br><strong>2)</strong> te gustan las sorpresas,
+  <br><strong>3)</strong> acabas de activar el <span style="color:#a855f7;font-weight:700">Modo ÉPICO</span>.`;
+
+  // “Revelación” final (puede ser un mensaje para esa persona)
+  const REVEAL = (name) => `🎁 <strong>Sorpresa:</strong> ${name}, esto era solo una excusa para decirte que
+  <span style="color:#22c55e;font-weight:800">eres increíble</span> 😄`;
+
+  // =========================
+  // 2) LÓGICA (no hace falta tocar)
+  // =========================
+  document.getElementById("modeTitle").textContent = APP_TITLE;
+
+  const app = document.getElementById("app");
+  const bar = document.getElementById("bar");
+  const stepPill = document.getElementById("stepPill");
+
+  const state = {
+    step: 0,
+    score: 0,
+    name: localStorage.getItem("quiz_name") || ""
+  };
+
+  function setProgress(){
+    const total = QUIZ.length + 1; // +1 por la pantalla inicial
+    const current = Math.min(state.step, total);
+    stepPill.textContent = `${Math.min(state.step, total)}/${total}`;
+    bar.style.width = `${(current/(total))*100}%`;
+  }
+
+  function screenStart(){
+    state.step = 0;
+    setProgress();
+    app.innerHTML = `
+      <h1>👋 Hola. Esto es un mini-programa.</h1>
+      <p>Responde unas preguntas rápidas y al final hay una cosa chula.
+      <br>Bonus: funciona como si fuera “una app”.</p>
+      <div class="row">
+        <input id="name" placeholder="Tu nombre (para personalizar)" value="${escapeHtml(state.name)}" />
+        <button id="go">Empezar</button>
+        <button class="btnGhost" id="demo">Modo demo</button>
+      </div>
+      <p class="footerNote">Tip: si lo abres otra vez, recuerda el nombre.</p>
+    `;
+    document.getElementById("go").onclick = () => {
+      const v = document.getElementById("name").value.trim();
+      if(!v){
+        app.classList.remove("shake"); void app.offsetWidth; app.classList.add("shake");
+        return;
+      }
+      state.name = v;
+      localStorage.setItem("quiz_name", v);
+      screenQuestion(0);
+    };
+    document.getElementById("demo").onclick = () => {
+      state.name = state.name || "Mister X";
+      localStorage.setItem("quiz_name", state.name);
+      screenQuestion(0);
+    };
+  }
+
+  function screenQuestion(i){
+    state.step = i + 1;
+    setProgress();
+    const item = QUIZ[i];
+    app.innerHTML = `
+      <h1>🧠 ${escapeHtml(item.q)}</h1>
+      ${item.hint ? `<div class="hint">${item.hint}</div>` : ""}
+      <div class="q" id="opts"></div>
+      <div class="row" style="margin-top:14px">
+        <button class="btnGhost" id="back" ${i===0 ? "disabled" : ""}>← Atrás</button>
+        <button class="btnGhost" id="reset">Reiniciar</button>
+      </div>
+    `;
+
+    const opts = document.getElementById("opts");
+    item.options.forEach((o, idx) => {
+      const b = document.createElement("button");
+      b.className = "opt";
+      b.innerHTML = `${escapeHtml(o.t)}`;
+      b.onclick = () => choose(i, idx, b);
+      opts.appendChild(b);
+    });
+
+    document.getElementById("back").onclick = () => {
+      if(i>0) screenQuestion(i-1);
+    };
+    document.getElementById("reset").onclick = () => {
+      state.score = 0;
+      screenStart();
+    };
+  }
+
+  function choose(i, idx, btn){
+    const item = QUIZ[i];
+    const ok = !!item.options[idx].ok;
+
+    // Marca visual
+    const buttons = [...document.querySelectorAll(".opt")];
+    buttons.forEach(b => b.disabled = true);
+    btn.classList.add(ok ? "good" : "bad");
+
+    if(ok) state.score++;
+
+    // Pasa a la siguiente
+    setTimeout(() => {
+      if(i < QUIZ.length - 1){
+        screenQuestion(i + 1);
+      } else {
+        screenFinal();
+      }
+    }, 550);
+  }
+
+  function screenFinal(){
+    state.step = QUIZ.length + 1;
+    setProgress();
+    const name = state.name || "Mister X";
+
+    app.innerHTML = `
+      <h1>${FINAL_TITLE}</h1>
+      <p>${FINAL_MESSAGE(escapeHtml(name))}</p>
+
+      <div class="mono" id="terminal"></div>
+
+      <div class="row">
+        <button id="reveal">Activar sorpresa</button>
+        <button class="btnGhost" id="again">Repetir</button>
+      </div>
+
+      <p class="footerNote">Puntuación: <strong>${state.score}/${QUIZ.length}</strong> (totalmente científica).</p>
+    `;
+
+    typeTerminal([
+      `> iniciando módulo: personalidad_v1`,
+      `> usuario: ${name}`,
+      `> cargando...`,
+      `> analizando respuestas...`,
+      `> resultado: 99.7% vibes positivas ✅`,
+      `> preparando efecto visual...`
+    ]);
+
+    document.getElementById("again").onclick = () => {
+      state.score = 0;
+      screenStart();
+    };
+
+    document.getElementById("reveal").onclick = () => {
+      confettiBoom(220);
+      app.querySelector("p").insertAdjacentHTML("beforeend", `<br><br>${REVEAL(escapeHtml(name))}`);
+      document.getElementById("reveal").disabled = true;
+    };
+  }
+
+  function typeTerminal(lines){
+    const el = document.getElementById("terminal");
+    el.textContent = "";
+    let i=0;
+    const tick = () => {
+      if(i >= lines.length) return;
+      el.textContent += lines[i] + "\n";
+      el.scrollTop = el.scrollHeight;
+      i++;
+      setTimeout(tick, 420);
+    };
+    tick();
+  }
+
+  function escapeHtml(s){
+    return String(s)
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+  }
+
+  // =========================
+  // CONFETTI (canvas simple)
+  // =========================
+  const c = document.getElementById("confetti");
+  const ctx = c.getContext("2d");
+  let W,H,parts=[],anim=null;
+  function resize(){
+    W = c.width = window.innerWidth;
+    H = c.height = window.innerHeight;
+  }
+  window.addEventListener("resize", resize);
+  resize();
+
+  function confettiBoom(n=180){
+    parts = [];
+    for(let i=0;i<n;i++){
+      parts.push({
+        x: W/2, y: H/3,
+        vx: (Math.random()*2-1)*10,
+        vy: (Math.random()*2-1)*10 - 6,
+        g: 0.28 + Math.random()*0.18,
+        s: 4 + Math.random()*6,
+        r: Math.random()*Math.PI
+      });
+    }
+    if(anim) cancelAnimationFrame(anim);
+    loop();
+  }
+
+  function loop(){
+    ctx.clearRect(0,0,W,H);
+    for(const p of parts){
+      p.vy += p.g;
+      p.x += p.vx;
+      p.y += p.vy;
+      p.r += 0.15;
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.r);
+      ctx.globalAlpha = Math.max(0, 1 - p.y/H);
+      // no definimos colores fijos; usamos HSL random para que sea vistoso
+      ctx.fillStyle = `hsl(${(p.x+p.y)%360} 90% 60%)`;
+      ctx.fillRect(-p.s/2, -p.s/2, p.s, p.s*0.7);
+      ctx.restore();
+    }
+    parts = parts.filter(p => p.y < H + 40);
+    if(parts.length>0) anim = requestAnimationFrame(loop);
+  }
+
+  // init
+  screenStart();
+</script>
+</body>
+</html>
